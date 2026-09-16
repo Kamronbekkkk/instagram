@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import metaLogo from "@/images/meta-logo.png";
 
 export function InstagramGlyph({ className = "h-[74px] w-[74px]" }: { className?: string }) {
   return (
@@ -21,25 +22,16 @@ export function InstagramGlyph({ className = "h-[74px] w-[74px]" }: { className?
   );
 }
 
-export function MetaGlyph({ className = "h-5 w-8" }: { className?: string }) {
+export function MetaGlyph({ className = "h-9 w-14" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 220 150" className={className} role="img" aria-label="Meta">
-      <defs>
-        <linearGradient id="meta-g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0a7dff" />
-          <stop offset="45%" stopColor="#0064e0" />
-          <stop offset="100%" stopColor="#1d4ed8" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M18 75c0-28.7 22.3-52 50-52 22.2 0 36.2 12.4 46 28.4C125.5 26.7 139.5 15 162 15c27.7 0 50 23.3 50 52 0 28.7-22.3 52-50 52-22.5 0-36.5-11.7-48-28.4C104.2 115.6 90.2 128 68 128c-27.7 0-50-23.3-50-53Zm58 0c0-13.4 10.8-24 24-24 20.8 0 34.7 21 52 21 15.4 0 29.5-10.1 37-21.6 8 10.8 13.2 24 13.2 36.6 0 13.2-5.1 25.7-13.2 36.6-7.5-11.5-21.6-21.6-37-21.6-17.3 0-31.2 21-52 21-13.2 0-24-10.6-24-24Z"
-        fill="none"
-        stroke="url(#meta-g)"
-        strokeWidth="18"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <img
+      src={metaLogo}
+      alt="Meta"
+      className={className}
+      role="img"
+      aria-label="Meta"
+      draggable={false}
+    />
   );
 }
 
