@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { FloatingField, InstagramGlyph, MetaGlyph } from "@/components/ig";
-import { createUserRecord, readUsers, saveSessionUser, saveUsers } from "@/lib/auth";
+import { saveSessionUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -36,8 +36,6 @@ function Register() {
   const canSubmit =
     name.trim() !== "" && contact.trim() !== "" && username.trim() !== "" && password.length >= 6;
 
-  const userList = useMemo(() => readUsers(), []);
-
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
@@ -68,7 +66,7 @@ function Register() {
 
       <form
         className="mt-8 flex flex-col gap-3"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
 
           const normalizedUsername = username.trim();
@@ -79,29 +77,28 @@ function Register() {
             return;
           }
 
-          const existingUser = userList.find(
-            (user) =>
-              user.username.toLowerCase() === normalizedUsername.toLowerCase() ||
-              user.contact.toLowerCase() === normalizedContact.toLowerCase(),
-          );
-
-          if (existingUser) {
-            setError("Пользователь с таким логином или контактом уже существует.");
-            return;
+          try {
+            const res = await fetch("/api/users", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                name,
+                contact: normalizedContact,
+                username: normalizedUsername,
+                password,
+              }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              setError(data.error || "Ошибка регистрации.");
+              return;
+            }
+            saveSessionUser(data);
+            setError("");
+            setIsLoading(true);
+          } catch {
+            setError("Ошибка подключения к серверу.");
           }
-
-          const newUser = createUserRecord({
-            name,
-            contact: normalizedContact,
-            username: normalizedUsername,
-            password,
-          });
-
-          const nextUsers = [...userList, newUser];
-          saveUsers(nextUsers);
-          saveSessionUser(newUser);
-          setError("");
-          setIsLoading(true);
         }}
       >
         <FloatingField label="Имя и фамилия" value={name} onChange={setName} />

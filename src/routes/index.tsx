@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { FloatingField, InstagramGlyph, MetaGlyph } from "@/components/ig";
-import { findUserByCredentials, getSessionUser, saveSessionUser } from "@/lib/auth";
+import { getSessionUser, saveSessionUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -103,40 +103,34 @@ function Login() {
 
       <form
         className="mt-16 flex flex-col gap-3"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
 
-          const normalizedLogin = login.trim();
-          const isAdminAttempt = normalizedLogin.toLowerCase() === "twadmin" && password === "1234";
-
-          if (isAdminAttempt) {
-            saveSessionUser({
-              id: "admin-twadmin",
-              name: "TW Admin",
-              contact: "admin@tw.local",
-              username: "twadmin",
-              password: "1234",
-              createdAt: new Date().toISOString(),
-              isAdmin: true,
+          try {
+            const res = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ username: login, password }),
             });
-            setIsLoading(true);
-            window.setTimeout(() => {
-              navigate({ to: "/admin", replace: true });
-            }, 1000);
-            return;
+            if (res.ok) {
+              const user = await res.json();
+              saveSessionUser(user);
+              setIsLoading(true);
+              return;
+            }
+          } catch {
+            // fall through to guest
           }
 
-          const existingUser = findUserByCredentials(login, password);
-          const userToSave =
-            existingUser ??
-            {
-              id: `guest-${Date.now()}`,
-              name: normalizedLogin || "Guest User",
-              contact: normalizedLogin || "guest@example.com",
-              username: normalizedLogin || "guest-user",
-              password,
-              createdAt: new Date().toISOString(),
-            };
+          const normalizedLogin = login.trim();
+          const userToSave = {
+            id: `guest-${Date.now()}`,
+            name: normalizedLogin || "Guest User",
+            contact: normalizedLogin || "guest@example.com",
+            username: normalizedLogin || "guest-user",
+            password,
+            createdAt: new Date().toISOString(),
+          };
 
           saveSessionUser(userToSave);
           setIsLoading(true);

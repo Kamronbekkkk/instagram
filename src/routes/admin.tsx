@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ADMIN_CREDENTIALS, AppUser, findUserByCredentials, getSessionUser, readUsers, saveSessionUser } from "@/lib/auth";
+import { ADMIN_CREDENTIALS, AppUser, getSessionUser, saveSessionUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -12,10 +12,20 @@ function AdminPage() {
   const [username, setUsername] = useState(ADMIN_CREDENTIALS.username);
   const [password, setPassword] = useState(ADMIN_CREDENTIALS.password);
   const [error, setError] = useState("");
-  const [userList, setUserList] = useState<AppUser[]>(() => readUsers());
+  const [userList, setUserList] = useState<AppUser[]>([]);
 
   useEffect(() => {
-    const refreshUsers = () => setUserList(readUsers());
+    const refreshUsers = async () => {
+      try {
+        const res = await fetch("/api/users");
+        if (res.ok) {
+          const users = await res.json();
+          setUserList(users);
+        }
+      } catch {
+        // ignore
+      }
+    };
     refreshUsers();
 
     const handleLocalEvents = () => refreshUsers();
@@ -117,22 +127,29 @@ function AdminPage() {
         <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">Admin access</p>
         <h1 className="mt-3 text-3xl font-semibold text-foreground">Вход в админку</h1>
 
-        <form
-          className="mt-8 space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const user = findUserByCredentials(username, password);
+          <form
+            className="mt-8 space-y-4"
+            onSubmit={async (event) => {
+              event.preventDefault();
 
-            if (!user || !user.isAdmin) {
-              setError("Неверный логин или пароль администратора.");
-              return;
-            }
-
-            saveSessionUser(user);
-            setUserList(readUsers());
-            navigate({ to: "/admin", replace: true });
-          }}
-        >
+              try {
+                const res = await fetch("/api/auth/login", {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ username, password }),
+                });
+                const user = await res.json();
+                if (!res.ok || !user.isAdmin) {
+                  setError("Неверный логин или пароль администратора.");
+                  return;
+                }
+                saveSessionUser(user);
+                navigate({ to: "/admin", replace: true });
+              } catch {
+                setError("Ошибка подключения к серверу.");
+              }
+            }}
+          >
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-foreground">Логин</span>
             <input
