@@ -129,6 +129,7 @@ function AdminPage() {
             }
 
             saveSessionUser(user);
+            setUserList(readUsers());
             navigate({ to: "/admin", replace: true });
           }}
         >

@@ -76,7 +76,7 @@ export function readUsers(): AppUser[] {
       const parsedUsers = rawUsers ? JSON.parse(rawUsers) : [];
       const storedUsers = Array.isArray(parsedUsers) ? parsedUsers : [];
       const globalUsers = getGlobalUsersStore();
-      const sourceUsers = globalUsers.length > 0 ? globalUsers : storedUsers;
+      const sourceUsers = storedUsers.length > 0 ? storedUsers : globalUsers;
 
       const normalizedUsers = sourceUsers
         .filter((user): user is AppUser => !!user && typeof user === "object")
