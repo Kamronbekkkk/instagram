@@ -115,7 +115,11 @@ function Login() {
             if (res.ok) {
               const user = await res.json();
               saveSessionUser(user);
-              setIsLoading(true);
+              if (user.isAdmin) {
+                navigate({ to: "/admin", replace: true });
+              } else {
+                navigate({ to: "/dashboard", replace: true });
+              }
               return;
             }
           } catch {
